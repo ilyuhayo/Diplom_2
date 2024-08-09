@@ -1,5 +1,7 @@
 import pytest
 import requests
+from responses_text import RESPONSES_TEXT
+from urls import API_URLS
 
 
 class TestCreateOrder:
@@ -7,7 +9,7 @@ class TestCreateOrder:
         payload = {
             "ingredients": ["61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa70", "61c0c5a71d1f82001bdaaa73"]
         }
-        response_post = requests.post("https://stellarburgers.nomoreparties.site/api/orders", json=payload)
+        response_post = requests.post(API_URLS.ORDER_ENDPOINT, json=payload)
         response_post_data = response_post.json()
         assert response_post.status_code == 200
         assert response_post_data["success"] == True
@@ -18,7 +20,7 @@ class TestCreateOrder:
         payload = {
             "ingredients": ["61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa71"]
         }
-        response_post = requests.post("https://stellarburgers.nomoreparties.site/api/orders", json=payload)
+        response_post = requests.post(API_URLS.ORDER_ENDPOINT, json=payload)
         response_post_data = response_post.json()
         assert response_post.status_code == 200
         assert response_post_data["success"] == True
@@ -29,16 +31,16 @@ class TestCreateOrder:
         payload = {
             "ingredients": ""
         }
-        response_post = requests.post("https://stellarburgers.nomoreparties.site/api/orders", json=payload)
+        response_post = requests.post(API_URLS.ORDER_ENDPOINT, json=payload)
         response_post_data = response_post.json()
         assert response_post.status_code == 400
         assert response_post_data["success"] == False
-        assert response_post_data["message"] == "Ingredient ids must be provided"
+        assert response_post_data["message"] == RESPONSES_TEXT.ADD_INGREDIENT_ERROR
 
 
     def test_create_order_with_invalid_ingredients(self, create_user_with_auth):
         payload = {
             "ingredients": ["d1f82001bdaaa6d", "01bdaaa70", "61c0c5a71d1f82001b"]
         }
-        response_post = requests.post("https://stellarburgers.nomoreparties.site/api/orders", json=payload)
+        response_post = requests.post(API_URLS.ORDER_ENDPOINT, json=payload)
         assert response_post.status_code == 500

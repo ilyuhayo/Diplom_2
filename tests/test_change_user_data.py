@@ -1,6 +1,8 @@
 import pytest
 import requests
 from faker import Faker
+from responses_text import RESPONSES_TEXT
+from urls import API_URLS
 
 class TestChangeUserData:
     def test_change_user_data(self, create_user):
@@ -16,7 +18,7 @@ class TestChangeUserData:
         }
 
         response_patch = requests.patch(
-            "https://stellarburgers.nomoreparties.site/api/auth/user",
+            API_URLS.USER_ENDPOINT,
             json=payload,
             headers=headers
         )
@@ -31,7 +33,7 @@ class TestChangeUserData:
             "email": faker.email(),
             "password": faker.password()
         }
-        response_patch = requests.patch("https://stellarburgers.nomoreparties.site/api/auth/user", json=payload)
+        response_patch = requests.patch(API_URLS.USER_ENDPOINT, json=payload)
         response_patch_data = response_patch.json()
         assert response_patch.status_code == 401
-        assert response_patch_data == {"success": False, "message": "You should be authorised"}
+        assert response_patch_data["message"] == RESPONSES_TEXT.UNAUTHORISED_ERROR

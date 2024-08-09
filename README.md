@@ -1,1 +1,3 @@
-# Diplom_2
+api_autotests
+
+Pet project for autotesting API with Python

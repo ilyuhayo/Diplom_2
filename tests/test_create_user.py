@@ -1,6 +1,7 @@
 import pytest
 import requests
-
+from responses_text import RESPONSES_TEXT
+from urls import API_URLS
 
 
 class TestCreateUser:
@@ -15,9 +16,11 @@ class TestCreateUser:
             "password": "123456",
             "name": "dyadka"
         }
-        response = requests.post("https://stellarburgers.nomoreparties.site/api/auth/register", json=payload)
+        response = requests.post(API_URLS.REGISTER_USER_ENDPOINT, json=payload)
+        response_data = response.json()
         assert response.status_code == 403
-        assert response.json() == {"success": False, "message": "User already exists"}
+        assert response_data["success"] == False
+        assert response_data["message"] == RESPONSES_TEXT.EXISTING_USER_ERROR
 
 
     def test_create_user_without_password(self):
@@ -26,6 +29,9 @@ class TestCreateUser:
             "password": "",
             "name": "spartak"
         }
-        response = requests.post("https://stellarburgers.nomoreparties.site/api/auth/register", json=payload)
+        response = requests.post(API_URLS.REGISTER_USER_ENDPOINT, json=payload)
+        response_data = response.json()
         assert response.status_code == 403
-        assert response.json() == {"success":False,"message":"Email, password and name are required fields"}
+        assert response_data["success"] == False
+        assert response_data["message"] == RESPONSES_TEXT.REQUIRED_PASSWORD_AND_NAME_ERROR
+
