@@ -68,3 +68,52 @@ def create_user_with_auth():
         'Authorization': f"Bearer {user_info['accessToken']}"
     }
     response_delete = requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
+
+
+@pytest.fixture()
+def create_user_and_order():
+    faker = Faker()
+    payload = {
+        "email": faker.email(),
+        "password": faker.password(),
+        "name": faker.name()
+    }
+    response_register = requests.post("https://stellarburgers.nomoreparties.site/api/auth/register", json=payload)
+    user_data_info = response_register.json()
+
+    user_info = {
+        "email": user_data_info['user']['email'],
+        "password": payload['password'],
+        "accessToken": user_data_info['accessToken'],
+        "refreshToken": user_data_info['refreshToken']
+    }
+
+    payload_auth = {
+        "email": user_info['email'],
+        "password": user_info['password']
+    }
+    response_login = requests.post("https://stellarburgers.nomoreparties.site/api/auth/login", json=payload_auth)
+    auth_data = response_login.json()
+
+    user_info["accessToken"] = auth_data["accessToken"]
+    user_info["refreshToken"] = auth_data["refreshToken"]
+
+    headers = {"Authorization": user_info["accessToken"]}
+    order_payload = {
+        "ingredients": [
+            "61c0c5a71d1f82001bdaaa6d",
+            "61c0c5a71d1f82001bdaaa72"
+        ]
+    }
+    response_create_order = requests.post("https://stellarburgers.nomoreparties.site/api/orders",
+                                          json=order_payload, headers=headers)
+
+    order_data = response_create_order.json()
+
+    user_info["order_id"] = order_data["order"]["number"]
+
+    yield user_info
+
+
+    headers = {"Authorization": user_info["accessToken"]}
+    requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
