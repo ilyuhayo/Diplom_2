@@ -1,3 +1,4 @@
+import allure
 import pytest
 import requests
 from responses_text import RESPONSES_TEXT
@@ -5,6 +6,7 @@ from urls import API_URLS
 
 
 class TestCreateUser:
+    @allure.title("Создание пользователя")
     def test_create_user(self, user_data):
         payload = {
             "email": user_data["email"],
@@ -21,6 +23,7 @@ class TestCreateUser:
         requests.delete(API_URLS.USER_ENDPOINT, headers=headers)
 
 
+    @allure.title("Создание существующего пользователя")
     def test_create_identical_user(self):
         payload = {
             "email": "dyadka@mail.ru",
@@ -34,6 +37,7 @@ class TestCreateUser:
         assert response_data["message"] == RESPONSES_TEXT.EXISTING_USER_ERROR
 
 
+    @allure.title("Создание пользователя без пароля")
     def test_create_user_without_password(self):
         payload = {
             "email": "spartak@mail.ru",

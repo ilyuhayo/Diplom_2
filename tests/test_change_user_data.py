@@ -1,3 +1,4 @@
+import allure
 import pytest
 import requests
 from faker import Faker
@@ -5,6 +6,7 @@ from responses_text import RESPONSES_TEXT
 from urls import API_URLS
 
 class TestChangeUserData:
+    @allure.title("Изменение данных пользователя")
     def test_change_user_data(self, create_user):
         access_token = create_user["accessToken"]
         faker = Faker()
@@ -27,6 +29,7 @@ class TestChangeUserData:
         assert response_patch_data['success'] == True
 
 
+    @allure.title("Изменение данных пользователя без авторизации")
     def test_change_user_data_without_auth(self, create_user):
         faker = Faker()
         payload = {

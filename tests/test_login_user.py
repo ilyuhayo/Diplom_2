@@ -1,3 +1,4 @@
+import allure
 import pytest
 import requests
 from responses_text import RESPONSES_TEXT
@@ -5,6 +6,7 @@ from urls import API_URLS
 
 
 class TestLogin:
+    @allure.title("Авторизация пользователя")
     def test_login_user(self, create_user):
         payload_auth = {
             "email": create_user["email"],
@@ -16,6 +18,7 @@ class TestLogin:
         assert response_data["success"] == True
 
 
+    @allure.title("Авторизация пользователя с неверным email и password")
     def test_login_user_with_invalid_data(self):
         payload = {
             "email": "dyadka@mail.rufalse",
