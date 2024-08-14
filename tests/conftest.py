@@ -1,28 +1,23 @@
 import pytest
 import requests
 from faker import Faker
+from urls import API_URLS
 
 
 @pytest.fixture()
 def user_data():
     faker = Faker()
-    payload = {
+    return {
         "email": faker.email(),
         "password": faker.password(),
         "name": faker.name()
     }
 
-    yield payload
 
 @pytest.fixture()
-def create_user():
-    faker = Faker()
-    payload = {
-        "email": faker.email(),
-        "password": faker.password(),
-        "name": faker.name()
-    }
-    response_post = requests.post("https://stellarburgers.nomoreparties.site/api/auth/register", json=payload)
+def create_user(user_data):
+    payload = user_data
+    response_post = requests.post(API_URLS.REGISTER_USER_ENDPOINT, json=payload)
     response_data = response_post.json()
     user_info = {
         "email": response_data['user']['email'],
@@ -36,67 +31,34 @@ def create_user():
     headers = {
         'Authorization': f"Bearer {user_info['accessToken']}"
     }
-    response_delete = requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
-
-@pytest.fixture()
-def create_user_with_auth():
-    faker = Faker()
-    payload = {
-        "email": faker.email(),
-        "password": faker.password(),
-        "name": faker.name()
-    }
-    response_post = requests.post("https://stellarburgers.nomoreparties.site/api/auth/register", json=payload)
-    response_data = response_post.json()
-    user_info = {
-        "email": response_data['user']['email'],
-        "name": response_data['user']['name'],
-        "password": payload["password"],
-        "accessToken": response_data["accessToken"],
-        "refreshToken": response_data["refreshToken"]
-    }
-
-    payload_auth = {
-        "email": response_data['user']['email'],
-        "password": payload["password"]
-    }
-    response_post_auth = requests.post("https://stellarburgers.nomoreparties.site/api/auth/login", json=payload_auth)
-
-    yield user_info
-
-    headers = {
-        'Authorization': f"Bearer {user_info['accessToken']}"
-    }
-    response_delete = requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
+    requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
 
 
 @pytest.fixture()
-def create_user_and_order():
-    faker = Faker()
-    payload = {
-        "email": faker.email(),
-        "password": faker.password(),
-        "name": faker.name()
-    }
-    response_register = requests.post("https://stellarburgers.nomoreparties.site/api/auth/register", json=payload)
-    user_data_info = response_register.json()
-
-    user_info = {
-        "email": user_data_info['user']['email'],
-        "password": payload['password'],
-        "accessToken": user_data_info['accessToken'],
-        "refreshToken": user_data_info['refreshToken']
-    }
+def create_user_with_auth(create_user):
+    user_info = create_user
 
     payload_auth = {
         "email": user_info['email'],
         "password": user_info['password']
     }
-    response_login = requests.post("https://stellarburgers.nomoreparties.site/api/auth/login", json=payload_auth)
-    auth_data = response_login.json()
+    response_post_auth = requests.post(API_URLS.LOGIN_USER_ENDPOINT, json=payload_auth)
+    auth_data = response_post_auth.json()
 
     user_info["accessToken"] = auth_data["accessToken"]
     user_info["refreshToken"] = auth_data["refreshToken"]
+
+    yield user_info
+
+    headers = {
+        'Authorization': f"Bearer {user_info['accessToken']}"
+    }
+    requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
+
+
+@pytest.fixture()
+def create_user_and_order(create_user_with_auth):
+    user_info = create_user_with_auth
 
     headers = {"Authorization": user_info["accessToken"]}
     order_payload = {
@@ -105,15 +67,13 @@ def create_user_and_order():
             "61c0c5a71d1f82001bdaaa72"
         ]
     }
-    response_create_order = requests.post("https://stellarburgers.nomoreparties.site/api/orders",
+    response_create_order = requests.post(API_URLS.ORDER_ENDPOINT,
                                           json=order_payload, headers=headers)
-
     order_data = response_create_order.json()
 
     user_info["order_id"] = order_data["order"]["number"]
 
     yield user_info
-
 
     headers = {"Authorization": user_info["accessToken"]}
     requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
