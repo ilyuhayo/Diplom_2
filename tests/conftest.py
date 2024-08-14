@@ -31,7 +31,7 @@ def create_user(user_data):
     headers = {
         'Authorization': f"Bearer {user_info['accessToken']}"
     }
-    requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
+    requests.delete(API_URLS.USER_ENDPOINT, headers=headers)
 
 
 @pytest.fixture()
@@ -53,7 +53,7 @@ def create_user_with_auth(create_user):
     headers = {
         'Authorization': f"Bearer {user_info['accessToken']}"
     }
-    requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
+    requests.delete(API_URLS.USER_ENDPOINT, headers=headers)
 
 
 @pytest.fixture()
@@ -76,4 +76,4 @@ def create_user_and_order(create_user_with_auth):
     yield user_info
 
     headers = {"Authorization": user_info["accessToken"]}
-    requests.delete("https://stellarburgers.nomoreparties.site/api/auth/user", headers=headers)
+    requests.delete(API_URLS.USER_ENDPOINT, headers=headers)

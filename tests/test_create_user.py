@@ -5,9 +5,20 @@ from urls import API_URLS
 
 
 class TestCreateUser:
-    def test_create_user(self, create_user):
-        assert create_user["accessToken"] is not None
-        assert create_user["refreshToken"] is not None
+    def test_create_user(self, user_data):
+        payload = {
+            "email": user_data["email"],
+            "password": user_data["password"],
+            "name": user_data["name"]
+        }
+        response = requests.post(API_URLS.REGISTER_USER_ENDPOINT, json=payload)
+        response_data = response.json()
+        assert response.status_code == 200
+
+        headers = {
+            'Authorization': f"Bearer {response_data['accessToken']}"
+        }
+        requests.delete(API_URLS.USER_ENDPOINT, headers=headers)
 
 
     def test_create_identical_user(self):
